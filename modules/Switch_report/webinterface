@@ -1,0 +1,71 @@
+#!/usr/bin/perl
+=head1 Switch report
+
+=cut
+
+use strict;
+use warnings;
+require Abills::Misc;
+use Switch_report;
+use Conf;
+use Data::Dumper;
+
+
+# Модуль конфигурации
+our (
+  $db,
+  $admin,
+  %conf,
+  %lang,
+  %FORM,
+  $index,
+);
+
+our Abills::HTML $html;
+my Abills::HTML $table;
+
+my $Switch_report = Switch_report->new($db, $admin, \%conf);
+
+sub switch_report {
+  my $switch_list = $Switch_report->switch_list({
+    ALL       => 1,
+    COLS_NAME => 1,
+    SORT      => $FORM{sort},
+    DESC      => $FORM{desc},
+  });
+
+  $table = $html->table({
+    width               => '100%',
+    caption             => $lang{CONTACTS},
+    border              => 1,
+    title               => [ 'N', 'ID', 'Switches', 'Clients', 'OFF', 'ON', 'Repair request in the last 30 days', 'Coefficient of disconection', 'Coefficient of application' ],
+    cols_align          => [ 'center', 'center', 'left', 'center', 'center', 'center', 'center', 'center', 'center'],
+    pages               => $admin->{TOTAL},
+    ID                  => 'SWITCH_REPORT_ID',
+    HAS_FUNCTION_FIELDS => 1,
+    EXPORT              => 1,
+  });
+
+  my $npp = 1;
+  foreach my $line (@$switch_list) {
+    $table->addrow(
+      $npp,
+      $line->{switch_id},
+      $line->{switch_name},
+      $line->{switch_users},
+      $line->{user_off},
+      $line->{user_on},
+      $line->{users_request},
+      sprintf("%.2f", $line->{user_off} / $line->{switch_users} * 100),
+      sprintf("%.2f", $line->{users_request} / $line->{switch_users} * 100),
+    );
+
+    ++$npp;
+  }
+  print $table->show();
+
+  return 1;
+
+}
+
+1

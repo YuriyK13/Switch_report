@@ -1,0 +1,6 @@
+#Iner_ID : my functions 1 - Reports
+%FUNCTIONS_LIST = (
+                   "01:0:Switch report:switch_report:"                => 1,
+                   );
+
+1
