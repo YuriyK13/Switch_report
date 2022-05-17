@@ -38,7 +38,7 @@ sub switch_report {
     width               => '100%',
     caption             => 'Звіт по комутаторам',
     border              => 1,
-    title               => [ 'N', 'ID', 'Комутатор', 'Клієнти', 'Відключених', 'Включених', 'Заявок за останні 30 дн.', 'Коефіцієнт відключених', 'Коефіцієнт заявок' ],
+    title               => [ '#', 'ID', $lang{SWITCH}, $lang{USERS}, $lang{USERS_OFF}, $lang{USERS_ON}, $lang{QUANTITY_USERS_REQUEST}, $lang{COEFFICIENT_OF_DISABLE_USERS}, $lang{COEFFICIENT_OF_REQUESTS_USERS} ],
     cols_align          => [ 'center', 'center', 'left', 'center', 'center', 'center', 'center', 'center', 'center'],
     ID                  => 'SWITCH_REPORT_ID',
     HAS_FUNCTION_FIELDS => 1,
