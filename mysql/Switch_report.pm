@@ -87,6 +87,7 @@ sub switch_list {
        (SELECT COUNT(msgs_messages.id)
         FROM msgs_messages
         WHERE msgs_messages.date >= (NOW() - INTERVAL 30 DAY)
+        AND msgs_messages.uid = users.uid
         AND users.uid = internet_main.uid
         AND internet_main.nas_id = nas.id
        ) AS users_request
