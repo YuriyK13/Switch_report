@@ -66,7 +66,7 @@ sub switch_list {
   my $WHERE = $self->search_former($attr, $search_columns, {
     WHERE => 1,
   });
-
+  # $self-> {debug}=1;
   $self->query("
     SELECT nas.id AS switch_id,
        nas.name AS switch_name,
@@ -84,13 +84,14 @@ sub switch_list {
         WHERE disable = 0
         AND internet_main.nas_id = nas.id
        ) AS user_on,
-       (SELECT COUNT(msgs_messages.id)
+       SUM((SELECT COUNT(id)
         FROM msgs_messages
         WHERE msgs_messages.date >= (NOW() - INTERVAL 30 DAY)
-        AND msgs_messages.uid = users.uid
-        AND users.uid = internet_main.uid
-        AND internet_main.nas_id = nas.id
-       ) AS users_request
+          AND msgs_messages.uid = users.uid
+          AND users.uid = internet_main.uid
+          AND internet_main.nas_id = nas.id
+       )) AS users_request
+
     FROM internet_main
     LEFT JOIN nas           ON internet_main.nas_id = nas.id
     LEFT JOIN users         ON internet_main.uid = users.uid
@@ -105,4 +106,5 @@ sub switch_list {
 
   return $list;
 }
+
 1;
