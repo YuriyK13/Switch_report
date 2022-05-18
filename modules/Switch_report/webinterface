@@ -11,7 +11,6 @@ use Conf;
 use Data::Dumper;
 
 
-# Модуль конфигурации
 our (
   $db,
   $admin,
@@ -22,10 +21,12 @@ our (
 );
 
 our Abills::HTML $html;
-my Abills::HTML $table;
 
 my $Switch_report = Switch_report->new($db, $admin, \%conf);
 
+=head1 switch_report ($attr) - show list of switches with quantity of all users, active and inactive users
+
+=cut
 sub switch_report {
   my $switch_list = $Switch_report->switch_list({
     ALL       => 1,
@@ -34,22 +35,23 @@ sub switch_report {
     DESC      => $FORM{desc},
   });
 
-  $table = $html->table({
+
+  my $table = $html->table({
     width               => '100%',
-    caption             => 'Звіт по комутаторам',
+    caption             => $lang{TITLE_SWITCH_REPORT},
     border              => 1,
     title               => [ '#', 'ID', $lang{SWITCH}, $lang{USERS}, $lang{USERS_OFF}, $lang{USERS_ON}, $lang{QUANTITY_USERS_REQUEST}, $lang{COEFFICIENT_OF_DISABLE_USERS}, $lang{COEFFICIENT_OF_REQUESTS_USERS} ],
-    cols_align          => [ 'center', 'center', 'left', 'center', 'center', 'center', 'center', 'center', 'center'],
     ID                  => 'SWITCH_REPORT_ID',
-    HAS_FUNCTION_FIELDS => 1,
     EXPORT              => 1,
   });
 
-  my $npp = 1;
+  my $i = 1;
+  my ($switch_total, $users_total, $user_off_total, $user_on_total, $users_request_total, $coef_users_off, $coef_users_request_total );
+  
   foreach my $line (@$switch_list) {
     $table->addrow(
-      $npp,
-      $html -> button($line->{switch_id},"index=62&NAS_ID=$line->{switch_id}",{ex_params => "class=new"}),
+      $i,
+      $html->button($line->{switch_id},"index=62&NAS_ID=$line->{switch_id}",{ex_params => "class=new"}),
       $line->{switch_name},
       $line->{switch_users},
       $line->{user_off},
@@ -59,8 +61,29 @@ sub switch_report {
       sprintf("%.2f", $line->{users_request} / $line->{switch_users} * 100),
     );
 
-    ++$npp;
+    $i++;
+    $switch_total ++;
+    $users_total += $line->{switch_users};
+    $user_off_total += $line->{user_off};
+    $user_on_total += $line->{user_on};
+    $users_request_total += $line->{users_request};
   }
+
+  $coef_users_off = sprintf("%.2f", $user_off_total / $users_total * 100);
+  $coef_users_request_total = sprintf("%.2f", $users_request_total / $users_total * 100);
+
+  $table->addfooter(
+    "$lang{TOTAL}: ",
+    '',
+    $switch_total,
+    $users_total,
+    $user_off_total,
+    $user_on_total,
+    $users_request_total,
+    $coef_users_off,
+    $coef_users_request_total,
+  );
+
   print $table->show();
 
   return 1;
